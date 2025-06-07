@@ -1,18 +1,26 @@
-from pydantic import BaseModel, Field
-from typing import Optional,List,Dict
+from pydantic import BaseModel,model_validator,computed_field,field_validator,Field
 
-# TODO: Create Employee model
+# TODO: Create Booking model
 # Fields:
-# - id: int
-# - name: str (min 3 chars)
-# - department: optional str (default 'General')
-# - salary: float (must be >= 10000) 
+# - user_id: int
+# - room_id: int
+# - nights: int (must be >=1)
+# - rate_per_night: float
+# Also, add computed field: total_amount = nights * rate_per_night
 
-class Employee(BaseModel):
-    id:int
-    name: str=Field(... ,min_length=3,max_length=100,description="Emplyee name",example="John Doe")
-    department: Optional[str] = Field(default='General')
-    salary :float=Field(...,ge=10000)
+class Booking(BaseModel):
+    user_id:int
+    room_id:int
+    nights:int=Field(...,ge=1)
+    rate_per_night:float
 
-input_data={ "id":1, "name":"Johv", "department":"IT", "salary":10000}
-Employee(**input_data)
+    @computed_field
+    @property
+    def total_amount(self)->float:
+        return self.nights * self.rate_per_night
+
+
+INPUT_DATA={ "user_id":1, "room_id":1, "nights":2, "rate_per_night":100}
+booking = Booking(**INPUT_DATA)
+
+print(booking.total_amount)
